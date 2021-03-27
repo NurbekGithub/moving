@@ -17,6 +17,8 @@ import React, { ChangeEvent, ChangeEventHandler, ReactNode } from "react";
 import { proxy, useSnapshot } from "valtio";
 import { FiArrowRight } from "react-icons/fi";
 import { addComputed } from "valtio/utils";
+import { MotionBox } from "../components/MotionBox";
+import { AnimatePresence } from "framer-motion";
 
 const state = proxy({
   smBoxes: 0,
@@ -54,6 +56,10 @@ addComputed(state, {
         snap.furniturers ||
         snap.loaders
     ),
+});
+
+const pageState = proxy({
+  page: "parametrs",
 });
 
 type ParamHeaderProps = {
@@ -276,6 +282,9 @@ function Parametrs() {
           isFullWidth
           position="absolute"
           bottom="0"
+          onClick={() => {
+            pageState.page = "maps";
+          }}
         >
           Далее
         </Button>
@@ -284,7 +293,12 @@ function Parametrs() {
   );
 }
 
+function Maps() {
+  return <Text>Hello there</Text>;
+}
+
 export default function Home() {
+  const snap = useSnapshot(pageState);
   return (
     <>
       <Head>
@@ -296,7 +310,8 @@ export default function Home() {
           <Heading fontSize="2xl">Moving App</Heading>
         </Container>
       </Box>
-      <Parametrs />
+      {snap.page === "parametrs" && <Parametrs />}
+      {snap.page === "maps" && <Maps />}
     </>
   );
 }
