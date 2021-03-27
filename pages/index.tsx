@@ -13,22 +13,30 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
-import React, { ReactNode } from "react";
+import React, { ChangeEvent, ChangeEventHandler, ReactNode } from "react";
 import { proxy, useSnapshot } from "valtio";
+import { FiArrowRight } from "react-icons/fi";
 import { addComputed } from "valtio/utils";
 
 const state = proxy({
   smBoxes: 0,
   mdBoxes: 0,
   lgBoxes: 0,
+  loaders: false,
+  cleaning: false,
+  furniturers: false,
   cargoVolumeDirty: false,
 }) as {
   smBoxes: number;
   mdBoxes: number;
   lgBoxes: number;
   cargoVolumeDirty: boolean;
+  loaders: boolean;
+  cleaning: boolean;
+  furniturers: boolean;
   cargoVolume: number;
   totalBoxVolume: number;
+  canProceed: boolean;
 };
 
 addComputed(state, {
@@ -38,6 +46,14 @@ addComputed(state, {
     smBoxes * 0.5 * 0.5 * 0.2,
   cargoVolume: (snap) =>
     snap.cargoVolumeDirty ? snap.cargoVolume : snap.totalBoxVolume,
+  canProceed: (snap) =>
+    Boolean(
+      snap.totalBoxVolume ||
+        snap.cargoVolume ||
+        snap.cleaning ||
+        snap.furniturers ||
+        snap.loaders
+    ),
 });
 
 type ParamHeaderProps = {
@@ -74,7 +90,7 @@ function BoxBadge(props: BoxBadgeProps) {
 
   return count > 0 ? (
     <Badge
-      color="green"
+      color="teal"
       position="absolute"
       fontSize="xx-small"
       top="-4px"
@@ -110,11 +126,167 @@ function CargoVehicle(props: CargoVehicleType) {
   return <Text>Газель</Text>;
 }
 
-export default function Home() {
-  const snap = useSnapshot(state);
+function handleCheckboxChange({
+  target: { name, checked },
+}: ChangeEvent<HTMLInputElement>) {
+  state[name as "cleaning" | "loaders" | "furniturers"] = checked;
+}
 
+function Parametrs() {
+  const snap = useSnapshot(state);
   return (
-    <div>
+    <Container flex="1" position="relative">
+      <Box>
+        <ParamHeader>
+          <Heading p="1" background="gray.100" size="sm">
+            Коробки
+            {snap.totalBoxVolume > 0 && (
+              <Badge ml="1" colorScheme="teal">
+                {snap.totalBoxVolume.toFixed(2)} m<sup>3</sup>
+              </Badge>
+            )}
+          </Heading>
+        </ParamHeader>
+        <Flex justify="space-between" p="1.5">
+          <Text position="relative">
+            50 x 50 x 20
+            <BoxBadge count={snap.smBoxes} />
+          </Text>
+          <VStack alignItems="flex-start">
+            <Text fontSize="xs" color="gray.600">
+              Количество, штук
+            </Text>
+            <CountButtons
+              count={snap.smBoxes}
+              handleChange={(num: number) => (state.smBoxes += num)}
+            />
+          </VStack>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between" p="1.5">
+          <Text position="relative">
+            50 x 50 x 50
+            <BoxBadge count={snap.mdBoxes} />
+          </Text>
+          <VStack alignItems="flex-start">
+            <Text fontSize="xs" color="gray.600">
+              Количество, штук
+            </Text>
+            <CountButtons
+              count={snap.mdBoxes}
+              handleChange={(num: number) => (state.mdBoxes += num)}
+            />
+          </VStack>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between" p="1.5">
+          <Text position="relative">
+            100 x 100 x 50
+            <BoxBadge count={snap.lgBoxes} />
+          </Text>
+          <VStack alignItems="flex-start">
+            <Text fontSize="xs" color="gray.600">
+              Количество, штук
+            </Text>
+            <CountButtons
+              count={snap.lgBoxes}
+              handleChange={(num: number) => (state.lgBoxes += num)}
+            />
+          </VStack>
+        </Flex>
+        <Divider />
+      </Box>
+      <Box>
+        <ParamHeader>
+          <Heading p="1" background="gray.100" size="sm">
+            Объем груза
+            {snap.cargoVolume > 0 && (
+              <Badge ml="1" colorScheme="teal">
+                {snap.cargoVolume.toFixed(2)} m<sup>3</sup>
+              </Badge>
+            )}
+          </Heading>
+        </ParamHeader>
+        <Flex justify="space-between" p="1.5">
+          <CargoVehicle volume={snap.cargoVolume} />
+          <VStack alignItems="flex-start">
+            <Text fontSize="xs" color="gray.600">
+              Количество, м<sup>3</sup>
+            </Text>
+            <CountButtons
+              count={snap.cargoVolume}
+              handleChange={(num: number) => {
+                state.cargoVolume += num;
+                state.cargoVolumeDirty = true;
+              }}
+            />
+          </VStack>
+        </Flex>
+      </Box>
+      <Box>
+        <ParamHeader>
+          <Heading p="1" background="gray.100" size="sm">
+            Дополнительная помощь
+          </Heading>
+        </ParamHeader>
+        <Flex justify="space-between" p="1.5">
+          <Text as="label" htmlFor="loaders" flex="1">
+            Грузчики
+          </Text>
+          <Checkbox
+            id="loaders"
+            colorScheme="teal"
+            name="loaders"
+            isChecked={snap.loaders}
+            onChange={handleCheckboxChange}
+          />
+        </Flex>
+        <Divider />
+        <Flex justify="space-between" p="1.5">
+          <Text as="label" htmlFor="furniturers" flex="1">
+            Разбор / сбор мебели
+          </Text>
+          <Checkbox
+            id="furniturers"
+            colorScheme="teal"
+            name="furniturers"
+            isChecked={snap.furniturers}
+            onChange={handleCheckboxChange}
+          />
+        </Flex>
+        <Divider />
+        <Flex justify="space-between" p="1.5">
+          <Text as="label" htmlFor="cleaning" flex="1">
+            Уборка / вывоз мусора
+          </Text>
+          <Checkbox
+            id="cleaning"
+            colorScheme="teal"
+            name="cleaning"
+            isChecked={snap.cleaning}
+            onChange={handleCheckboxChange}
+          />
+        </Flex>
+      </Box>
+      {snap.canProceed && (
+        <Button
+          rightIcon={<FiArrowRight />}
+          colorScheme="teal"
+          borderRadius="none"
+          isFullWidth
+          position="absolute"
+          bottom="0"
+        >
+          Далее
+        </Button>
+      )}
+    </Container>
+  );
+}
+
+export default function Home() {
+  return (
+    <>
       <Head>
         <title>Moving App</title>
         <link rel="icon" href="/favicon.ico" />
@@ -124,122 +296,7 @@ export default function Home() {
           <Heading fontSize="2xl">Moving App</Heading>
         </Container>
       </Box>
-      <Container maxW="4xl" p="0">
-        <Box>
-          <ParamHeader>
-            <Heading p="1" background="gray.100" size="sm">
-              Коробки
-              {snap.totalBoxVolume > 0 && (
-                <Badge ml="1" colorScheme="green">
-                  {snap.totalBoxVolume.toFixed(2)} m<sup>3</sup>
-                </Badge>
-              )}
-            </Heading>
-          </ParamHeader>
-          <Flex justify="space-between" p="1.5">
-            <Text position="relative">
-              50 x 50 x 20
-              <BoxBadge count={snap.smBoxes} />
-            </Text>
-            <VStack alignItems="flex-start">
-              <Text fontSize="xs" color="gray.600">
-                Количество, штук
-              </Text>
-              <CountButtons
-                count={snap.smBoxes}
-                handleChange={(num: number) => (state.smBoxes += num)}
-              />
-            </VStack>
-          </Flex>
-          <Divider />
-          <Flex justify="space-between" p="1.5">
-            <Text position="relative">
-              50 x 50 x 50
-              <BoxBadge count={snap.mdBoxes} />
-            </Text>
-            <VStack alignItems="flex-start">
-              <Text fontSize="xs" color="gray.600">
-                Количество, штук
-              </Text>
-              <CountButtons
-                count={snap.mdBoxes}
-                handleChange={(num: number) => (state.mdBoxes += num)}
-              />
-            </VStack>
-          </Flex>
-          <Divider />
-          <Flex justify="space-between" p="1.5">
-            <Text position="relative">
-              100 x 100 x 50
-              <BoxBadge count={snap.lgBoxes} />
-            </Text>
-            <VStack alignItems="flex-start">
-              <Text fontSize="xs" color="gray.600">
-                Количество, штук
-              </Text>
-              <CountButtons
-                count={snap.lgBoxes}
-                handleChange={(num: number) => (state.lgBoxes += num)}
-              />
-            </VStack>
-          </Flex>
-          <Divider />
-        </Box>
-        <Box>
-          <ParamHeader>
-            <Heading p="1" background="gray.100" size="sm">
-              Объем груза
-              {snap.cargoVolume > 0 && (
-                <Badge ml="1" colorScheme="green">
-                  {snap.cargoVolume.toFixed(2)} m<sup>3</sup>
-                </Badge>
-              )}
-            </Heading>
-          </ParamHeader>
-          <Flex justify="space-between" p="1.5">
-            <CargoVehicle volume={snap.cargoVolume} />
-            <VStack alignItems="flex-start">
-              <Text fontSize="xs" color="gray.600">
-                Количество, м<sup>3</sup>
-              </Text>
-              <CountButtons
-                count={snap.cargoVolume}
-                handleChange={(num: number) => {
-                  state.cargoVolume += num;
-                  state.cargoVolumeDirty = true;
-                }}
-              />
-            </VStack>
-          </Flex>
-        </Box>
-        <Box>
-          <ParamHeader>
-            <Heading p="1" background="gray.100" size="sm">
-              Дополнительная помощь
-            </Heading>
-          </ParamHeader>
-          <Flex justify="space-between" p="1.5">
-            <Text as="label" htmlFor="loaders" flex="1">
-              Грузчики
-            </Text>
-            <Checkbox id="loaders" name="loaders" />
-          </Flex>
-          <Divider />
-          <Flex justify="space-between" p="1.5">
-            <Text as="label" htmlFor="furniturers" flex="1">
-              Разбор / сбор мебели
-            </Text>
-            <Checkbox id="furniturers" name="furniturers" />
-          </Flex>
-          <Divider />
-          <Flex justify="space-between" p="1.5">
-            <Text as="label" htmlFor="furniturers" flex="1">
-              Уборка / вывоз мусора
-            </Text>
-            <Checkbox id="furniturers" name="furniturers" />
-          </Flex>
-        </Box>
-      </Container>
-    </div>
+      <Parametrs />
+    </>
   );
 }
