@@ -13,12 +13,26 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
-import React, { ChangeEvent, ChangeEventHandler, ReactNode } from "react";
+import React, {
+  ChangeEvent,
+  ChangeEventHandler,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { proxy, useSnapshot } from "valtio";
 import { FiArrowRight } from "react-icons/fi";
 import { addComputed } from "valtio/utils";
-import { MotionBox } from "../components/MotionBox";
-import { AnimatePresence } from "framer-motion";
+import {
+  GeolocationControl,
+  Map,
+  MapState,
+  Placemark,
+  SearchControl,
+  YMaps,
+  ZoomControl,
+} from "react-yandex-maps";
+import { useGeoPosition } from "../hooks/useGeoPosition";
 
 const state = proxy({
   smBoxes: 0,
@@ -59,7 +73,7 @@ addComputed(state, {
 });
 
 const pageState = proxy({
-  page: "parametrs",
+  page: "maps",
 });
 
 type ParamHeaderProps = {
@@ -293,8 +307,37 @@ function Parametrs() {
   );
 }
 
+const ASTANA_GEO_POINT = [51.128207, 71.430411];
+const defaultState: MapState = {
+  center: ASTANA_GEO_POINT,
+  zoom: 9,
+};
 function Maps() {
-  return <Text>Hello there</Text>;
+  const [position] = useGeoPosition();
+  const [state, setState] = useState(defaultState);
+
+  useEffect(() => {
+    if (position) {
+      setState({
+        center: [position.coords.latitude, position.coords.longitude],
+        zoom: 15,
+      });
+    }
+  }, [position]);
+  return (
+    <YMaps query={{ apikey: "922688b0-ec1e-4fe7-92f7-deea83d01c3d" }}>
+      <Box flex="1" d="flex" w="100%">
+        <Map width="100%" style={{ flex: 1 }} state={state}>
+          <SearchControl />
+          <ZoomControl />
+          <Placemark
+            geometry={state.center}
+            modules={["geoObject.addon.balloon", "geoObject.addon.hint"]}
+          />
+        </Map>
+      </Box>
+    </YMaps>
+  );
 }
 
 export default function Home() {
