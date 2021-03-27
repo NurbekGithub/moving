@@ -3,32 +3,47 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Checkbox,
   Container,
   Divider,
   Flex,
   Heading,
+  Spacer,
   Text,
 } from "@chakra-ui/react";
 import Head from "next/head";
 import React, { ReactNode, useMemo } from "react";
 import { proxy, useSnapshot } from "valtio";
+import { addComputed } from "valtio/utils";
 
 const state = proxy({
   smBoxes: 0,
   mdBoxes: 0,
   lgBoxes: 0,
+  cargoVolumeDirty: false,
+});
+
+type StateType = typeof state & { cargoVolume: number; totalBoxVolume: number };
+
+addComputed(state as StateType, {
+  totalBoxVolume: ({ smBoxes, mdBoxes, lgBoxes }) =>
+    lgBoxes * 1 * 1 * 0.5 +
+    mdBoxes * 0.5 * 0.5 * 0.5 +
+    smBoxes * 0.5 * 0.5 * 0.2,
+  cargoVolume: (snap) =>
+    snap.cargoVolumeDirty ? snap.cargoVolume : snap.totalBoxVolume,
 });
 
 type ParamHeaderProps = {
   children: ReactNode;
 };
 
-type BoxCountButtonsProps = {
+type CountButtonsProps = {
   count: number;
   handleChange: (num: number) => void;
 };
 
-function BoxCountButtons(props: BoxCountButtonsProps) {
+function CountButtons(props: CountButtonsProps) {
   const { handleChange, count } = props;
   return (
     <ButtonGroup size="sm" isAttached variant="outline">
@@ -74,16 +89,24 @@ function ParamHeader(props: ParamHeaderProps) {
   );
 }
 
-export default function Home() {
-  const snap = useSnapshot(state);
+type CargoVehicleType = {
+  volume: number;
+};
 
-  const totalBoxVolume = useMemo(() => {
-    return (
-      snap.lgBoxes * 1 * 1 * 0.5 +
-      snap.mdBoxes * 0.5 * 0.5 * 0.5 +
-      snap.smBoxes * 0.5 * 0.5 * 0.2
-    ).toFixed(2);
-  }, [snap.lgBoxes, snap.mdBoxes, snap.smBoxes]);
+function CargoVehicle(props: CargoVehicleType) {
+  const { volume } = props;
+  if (volume <= 2) {
+    return <Text>Машина</Text>;
+  }
+  if (volume > 2 && volume < 5) {
+    return <Text>Минивен</Text>;
+  }
+  return <Text>Газель</Text>;
+}
+
+export default function Home() {
+  const snap = useSnapshot(state as StateType);
+
   return (
     <div>
       <Head>
@@ -100,12 +123,11 @@ export default function Home() {
           <ParamHeader>
             <Heading p="1" background="gray.100" size="sm">
               Коробки
-              {+totalBoxVolume > 0 && (
-                <Badge colorScheme="green">
-                  {totalBoxVolume} m<sup>3</sup>
+              {snap.totalBoxVolume > 0 && (
+                <Badge ml="1" colorScheme="green">
+                  {snap.totalBoxVolume.toFixed(2)} m<sup>3</sup>
                 </Badge>
               )}
-              <sup></sup>
             </Heading>
           </ParamHeader>
           <Flex justify="space-between" p="1.5">
@@ -113,8 +135,8 @@ export default function Home() {
               50 x 50 x 20
               <BoxBadge count={snap.smBoxes} />
             </Text>
-            <BoxCountButtons
-              count={state.smBoxes}
+            <CountButtons
+              count={snap.smBoxes}
               handleChange={(num: number) => (state.smBoxes += num)}
             />
           </Flex>
@@ -124,8 +146,8 @@ export default function Home() {
               50 x 50 x 50
               <BoxBadge count={snap.mdBoxes} />
             </Text>
-            <BoxCountButtons
-              count={state.mdBoxes}
+            <CountButtons
+              count={snap.mdBoxes}
               handleChange={(num: number) => (state.mdBoxes += num)}
             />
           </Flex>
@@ -135,8 +157,8 @@ export default function Home() {
               100 x 100 x 50
               <BoxBadge count={snap.lgBoxes} />
             </Text>
-            <BoxCountButtons
-              count={state.lgBoxes}
+            <CountButtons
+              count={snap.lgBoxes}
               handleChange={(num: number) => (state.lgBoxes += num)}
             />
           </Flex>
@@ -145,16 +167,51 @@ export default function Home() {
         <Box>
           <ParamHeader>
             <Heading p="1" background="gray.100" size="sm">
-              Помощь с погрузкой
+              Объем груза
+              {snap.cargoVolume > 0 && (
+                <Badge ml="1" colorScheme="green">
+                  {snap.cargoVolume.toFixed(2)} m<sup>3</sup>
+                </Badge>
+              )}
             </Heading>
           </ParamHeader>
+          <Flex justify="space-between" p="1.5">
+            <CargoVehicle volume={snap.cargoVolume} />
+            <CountButtons
+              count={snap.cargoVolume}
+              handleChange={(num: number) => {
+                state.cargoVolume += num;
+                state.cargoVolumeDirty = true;
+              }}
+            />
+          </Flex>
         </Box>
         <Box>
           <ParamHeader>
             <Heading p="1" background="gray.100" size="sm">
-              Помощь с подготовкой
+              Дополнительная помощь
             </Heading>
           </ParamHeader>
+          <Flex justify="space-between" p="1.5">
+            <Text as="label" htmlFor="loaders" flex="1">
+              Грузчики
+            </Text>
+            <Checkbox id="loaders" name="loaders" />
+          </Flex>
+          <Divider />
+          <Flex justify="space-between" p="1.5">
+            <Text as="label" htmlFor="furniturers" flex="1">
+              Разбор / сбор мебели
+            </Text>
+            <Checkbox id="furniturers" name="furniturers" />
+          </Flex>
+          <Divider />
+          <Flex justify="space-between" p="1.5">
+            <Text as="label" htmlFor="furniturers" flex="1">
+              Уборка / вывоз мусора
+            </Text>
+            <Checkbox id="furniturers" name="furniturers" />
+          </Flex>
         </Box>
       </Container>
     </div>
