@@ -12,7 +12,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import Head from "next/head";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode } from "react";
 import { proxy, useSnapshot } from "valtio";
 import { addComputed } from "valtio/utils";
 
@@ -21,11 +21,16 @@ const state = proxy({
   mdBoxes: 0,
   lgBoxes: 0,
   cargoVolumeDirty: false,
-});
+}) as {
+  smBoxes: number;
+  mdBoxes: number;
+  lgBoxes: number;
+  cargoVolumeDirty: boolean;
+  cargoVolume: number;
+  totalBoxVolume: number;
+};
 
-type StateType = typeof state & { cargoVolume: number; totalBoxVolume: number };
-
-addComputed(state as StateType, {
+addComputed(state, {
   totalBoxVolume: ({ smBoxes, mdBoxes, lgBoxes }) =>
     lgBoxes * 1 * 1 * 0.5 +
     mdBoxes * 0.5 * 0.5 * 0.5 +
@@ -105,7 +110,7 @@ function CargoVehicle(props: CargoVehicleType) {
 }
 
 export default function Home() {
-  const snap = useSnapshot(state as StateType);
+  const snap = useSnapshot(state);
 
   return (
     <div>
