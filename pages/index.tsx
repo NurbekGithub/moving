@@ -10,6 +10,7 @@ import {
   Heading,
   Spacer,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
 import React, { ReactNode } from "react";
@@ -51,7 +52,7 @@ type CountButtonsProps = {
 function CountButtons(props: CountButtonsProps) {
   const { handleChange, count } = props;
   return (
-    <ButtonGroup size="sm" isAttached variant="outline">
+    <ButtonGroup size="sm" isAttached variant="outline" mt="0!important">
       <Button onClick={() => handleChange(-5)} disabled={count < 5}>
         -5
       </Button>
@@ -140,10 +141,15 @@ export default function Home() {
               50 x 50 x 20
               <BoxBadge count={snap.smBoxes} />
             </Text>
-            <CountButtons
-              count={snap.smBoxes}
-              handleChange={(num: number) => (state.smBoxes += num)}
-            />
+            <VStack alignItems="flex-start">
+              <Text fontSize="xs" color="gray.600">
+                Количество, штук
+              </Text>
+              <CountButtons
+                count={snap.smBoxes}
+                handleChange={(num: number) => (state.smBoxes += num)}
+              />
+            </VStack>
           </Flex>
           <Divider />
           <Flex justify="space-between" p="1.5">
@@ -151,10 +157,15 @@ export default function Home() {
               50 x 50 x 50
               <BoxBadge count={snap.mdBoxes} />
             </Text>
-            <CountButtons
-              count={snap.mdBoxes}
-              handleChange={(num: number) => (state.mdBoxes += num)}
-            />
+            <VStack alignItems="flex-start">
+              <Text fontSize="xs" color="gray.600">
+                Количество, штук
+              </Text>
+              <CountButtons
+                count={snap.mdBoxes}
+                handleChange={(num: number) => (state.mdBoxes += num)}
+              />
+            </VStack>
           </Flex>
           <Divider />
           <Flex justify="space-between" p="1.5">
@@ -162,10 +173,15 @@ export default function Home() {
               100 x 100 x 50
               <BoxBadge count={snap.lgBoxes} />
             </Text>
-            <CountButtons
-              count={snap.lgBoxes}
-              handleChange={(num: number) => (state.lgBoxes += num)}
-            />
+            <VStack alignItems="flex-start">
+              <Text fontSize="xs" color="gray.600">
+                Количество, штук
+              </Text>
+              <CountButtons
+                count={snap.lgBoxes}
+                handleChange={(num: number) => (state.lgBoxes += num)}
+              />
+            </VStack>
           </Flex>
           <Divider />
         </Box>
@@ -182,13 +198,18 @@ export default function Home() {
           </ParamHeader>
           <Flex justify="space-between" p="1.5">
             <CargoVehicle volume={snap.cargoVolume} />
-            <CountButtons
-              count={snap.cargoVolume}
-              handleChange={(num: number) => {
-                state.cargoVolume += num;
-                state.cargoVolumeDirty = true;
-              }}
-            />
+            <VStack alignItems="flex-start">
+              <Text fontSize="xs" color="gray.600">
+                Количество, м<sup>3</sup>
+              </Text>
+              <CountButtons
+                count={snap.cargoVolume}
+                handleChange={(num: number) => {
+                  state.cargoVolume += num;
+                  state.cargoVolumeDirty = true;
+                }}
+              />
+            </VStack>
           </Flex>
         </Box>
         <Box>
