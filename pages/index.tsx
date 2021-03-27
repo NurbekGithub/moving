@@ -90,12 +90,8 @@ function CountButtons(props: CountButtonsProps) {
   const { handleChange, count } = props;
   return (
     <ButtonGroup size="sm" isAttached variant="outline" mt="0!important">
-      <Button onClick={() => handleChange(-5)} disabled={count < 5}>
-        -5
-      </Button>
-      <Button onClick={() => handleChange(-1)} disabled={count === 0}>
-        -1
-      </Button>
+      <Button onClick={() => handleChange(count > 5 ? -5 : -count)}>-5</Button>
+      <Button onClick={() => handleChange(count > 1 ? -1 : -count)}>-1</Button>
       <Button onClick={() => handleChange(+1)}>+1</Button>
       <Button onClick={() => handleChange(+5)}>+5</Button>
     </ButtonGroup>
@@ -351,13 +347,15 @@ export default function Home() {
       </Head>
       <Box as="header" background="teal.400">
         <Container d="flex" alignItems="center">
-          <Box
-            as={FiChevronLeft}
-            w="30px"
-            p="1"
-            size="xl"
-            onClick={() => (pageState.page = "parametrs")}
-          />
+          {pageState.page === "maps" && (
+            <Box
+              as={FiChevronLeft}
+              w="30px"
+              p="1"
+              size="xl"
+              onClick={() => (pageState.page = "parametrs")}
+            />
+          )}
           <Heading fontSize="2xl">Moving App</Heading>
         </Container>
       </Box>
