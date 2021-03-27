@@ -8,6 +8,7 @@ import {
   Divider,
   Flex,
   Heading,
+  IconButton,
   Spacer,
   Text,
   VStack,
@@ -21,7 +22,7 @@ import React, {
   useState,
 } from "react";
 import { proxy, useSnapshot } from "valtio";
-import { FiArrowRight } from "react-icons/fi";
+import { FiArrowRight, FiChevronLeft } from "react-icons/fi";
 import { addComputed } from "valtio/utils";
 import {
   GeolocationControl,
@@ -73,7 +74,7 @@ addComputed(state, {
 });
 
 const pageState = proxy({
-  page: "maps",
+  page: "parametrs",
 });
 
 type ParamHeaderProps = {
@@ -125,7 +126,7 @@ function ParamHeader(props: ParamHeaderProps) {
   const { children } = props;
 
   return (
-    <Box position="sticky" top="0">
+    <Box position="sticky" top="0" zIndex="1">
       {children}
     </Box>
   );
@@ -349,7 +350,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Box as="header" background="teal.400">
-        <Container>
+        <Container d="flex" alignItems="center">
+          <Box
+            as={FiChevronLeft}
+            w="30px"
+            p="1"
+            size="xl"
+            onClick={() => (pageState.page = "parametrs")}
+          />
           <Heading fontSize="2xl">Moving App</Heading>
         </Container>
       </Box>
