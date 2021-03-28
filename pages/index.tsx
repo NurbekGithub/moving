@@ -1,4 +1,9 @@
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Badge,
   Box,
   Button,
@@ -8,32 +13,28 @@ import {
   Divider,
   Flex,
   Heading,
-  IconButton,
-  Spacer,
+  List,
+  ListIcon,
+  ListItem,
+  Stat,
+  StatNumber,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
-import React, {
-  ChangeEvent,
-  ChangeEventHandler,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import React, { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import { proxy, useSnapshot } from "valtio";
-import { FiArrowRight, FiChevronLeft } from "react-icons/fi";
+import { FiArrowRight, FiBox, FiCheck, FiChevronLeft } from "react-icons/fi";
 import { addComputed } from "valtio/utils";
 import {
-  GeolocationControl,
   Map,
   MapState,
-  Placemark,
   SearchControl,
   YMaps,
   ZoomControl,
 } from "react-yandex-maps";
 import { useGeoPosition } from "../hooks/useGeoPosition";
+import { BoxSVG } from "../components/Box";
 
 const state = proxy({
   smBoxes: 0,
@@ -75,7 +76,9 @@ addComputed(state, {
 
 const pageState = proxy({
   page: "parametrs",
-});
+}) as {
+  page: "parametrs" | "maps" | "results";
+};
 
 type ParamHeaderProps = {
   children: ReactNode;
@@ -166,6 +169,7 @@ function Parametrs() {
         </ParamHeader>
         <Flex justify="space-between" p="1.5">
           <Text position="relative">
+            <BoxSVG />
             50 x 50 x 20
             <BoxBadge count={snap.smBoxes} />
           </Text>
@@ -323,14 +327,163 @@ function Maps() {
     }
   }, [position]);
   return (
-    <Box flex="1" d="flex" w="100%" hidden={isHidden}>
+    <Box flex="1" d="flex" w="100%" hidden={isHidden} position="relative">
       <YMaps query={{ apikey: "922688b0-ec1e-4fe7-92f7-deea83d01c3d" }}>
         <Map width="100%" style={{ flex: 1 }} state={state}>
           <SearchControl />
           <ZoomControl />
         </Map>
       </YMaps>
+      <Button
+        rightIcon={<FiArrowRight />}
+        colorScheme="teal"
+        borderRadius="none"
+        isFullWidth
+        position="absolute"
+        bottom="0"
+        onClick={() => {
+          pageState.page = "results";
+        }}
+      >
+        Далее
+      </Button>
     </Box>
+  );
+}
+
+const results = [];
+
+function Results() {
+  return (
+    <Accordion allowMultiple>
+      <AccordionItem>
+        <AccordionButton>
+          <Box flex="1" textAlign="left">
+            <Heading size="lg">Результат 1</Heading>
+            <Box>Компания 1 + Компания 2 + Компания 3</Box>
+          </Box>
+          <Badge colorScheme="green" textShadow="2xl">
+            T25040
+          </Badge>
+        </AccordionButton>
+        <AccordionPanel pb={4}>
+          <List spacing={3}>
+            <ListItem
+              d="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex alignItems="center">
+                <ListIcon as={FiCheck} color="green.500" />
+                <Box>
+                  Компния 1: Коробки
+                  <Text>Rating: 5</Text>
+                </Box>
+              </Flex>
+              <Badge colorScheme="teal" textShadow="2xl">
+                T10000
+              </Badge>
+            </ListItem>
+            <ListItem
+              d="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex alignItems="center">
+                <ListIcon as={FiCheck} color="green.500" />
+                <Box>
+                  Компния 2: Транспорт + Грузчики
+                  <Text>Rating: 4</Text>
+                </Box>
+              </Flex>
+              <Badge colorScheme="teal" textShadow="2xl">
+                T5040
+              </Badge>
+            </ListItem>
+            <ListItem
+              d="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex alignItems="center">
+                <ListIcon as={FiCheck} color="green.500" />
+                <Box>
+                  Компания 3: Разбор / сбор мебели
+                  <Text>Rating: 4</Text>
+                </Box>
+              </Flex>
+              <Badge colorScheme="teal" textShadow="2xl">
+                T10000
+              </Badge>
+            </ListItem>
+          </List>
+        </AccordionPanel>
+      </AccordionItem>
+
+      <AccordionItem>
+        <AccordionButton>
+          <Box flex="1" textAlign="left">
+            <Heading size="lg">Результат 2</Heading>
+            <Box>Компания 1 + Компания 2 + Компания 4</Box>
+          </Box>
+          <Badge colorScheme="green" textShadow="2xl">
+            T26100
+          </Badge>
+        </AccordionButton>
+        <AccordionPanel pb={4}>
+          <List spacing={3}>
+            <ListItem
+              d="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex alignItems="center">
+                <ListIcon as={FiCheck} color="green.500" />
+                <Box>
+                  Компния 1: Коробки
+                  <Text>Rating: 5</Text>
+                </Box>
+              </Flex>
+              <Badge colorScheme="teal" textShadow="2xl">
+                T10000
+              </Badge>
+            </ListItem>
+            <ListItem
+              d="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex alignItems="center">
+                <ListIcon as={FiCheck} color="green.500" />
+                <Box>
+                  Компния 2: Транспорт + Грузчики
+                  <Text>Rating: 4</Text>
+                </Box>
+              </Flex>
+              <Badge colorScheme="teal" textShadow="2xl">
+                T5040
+              </Badge>
+            </ListItem>
+            <ListItem
+              d="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex alignItems="center">
+                <ListIcon as={FiCheck} color="green.500" />
+                <Box>
+                  Компания 4: Разбор / сбор мебели
+                  <Text>Rating: 4.2</Text>
+                </Box>
+              </Flex>
+              <Badge colorScheme="teal" textShadow="2xl">
+                T11060
+              </Badge>
+            </ListItem>
+          </List>
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
   );
 }
 
@@ -357,6 +510,7 @@ export default function Home() {
         </Container>
       </Box>
       {snap.page === "parametrs" && <Parametrs />}
+      {snap.page === "results" && <Results />}
       <Maps />
     </>
   );
