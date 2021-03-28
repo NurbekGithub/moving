@@ -310,7 +310,8 @@ const defaultState: MapState = {
   zoom: 9,
 };
 function Maps() {
-  const [position] = useGeoPosition();
+  const isHidden = pageState.page !== "maps";
+  const [position] = useGeoPosition(!isHidden);
   const [state, setState] = useState(defaultState);
 
   useEffect(() => {
@@ -322,18 +323,14 @@ function Maps() {
     }
   }, [position]);
   return (
-    <YMaps query={{ apikey: "922688b0-ec1e-4fe7-92f7-deea83d01c3d" }}>
-      <Box flex="1" d="flex" w="100%">
+    <Box flex="1" d="flex" w="100%" hidden={isHidden}>
+      <YMaps query={{ apikey: "922688b0-ec1e-4fe7-92f7-deea83d01c3d" }}>
         <Map width="100%" style={{ flex: 1 }} state={state}>
           <SearchControl />
           <ZoomControl />
-          <Placemark
-            geometry={state.center}
-            modules={["geoObject.addon.balloon", "geoObject.addon.hint"]}
-          />
         </Map>
-      </Box>
-    </YMaps>
+      </YMaps>
+    </Box>
   );
 }
 
@@ -360,7 +357,7 @@ export default function Home() {
         </Container>
       </Box>
       {snap.page === "parametrs" && <Parametrs />}
-      {snap.page === "maps" && <Maps />}
+      <Maps />
     </>
   );
 }
