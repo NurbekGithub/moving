@@ -1,7 +1,7 @@
-import { chakra, ChakraComponent } from "@chakra-ui/system";
+import { chakra, ChakraComponent, ChakraProps } from "@chakra-ui/system";
 import * as React from "react";
 
-export function BoxSVG(props: ChakraComponent<"svg", {}>) {
+export function BoxSVG(props: ChakraProps) {
   return (
     <chakra.svg
       xmlns="http://www.w3.org/2000/svg"
