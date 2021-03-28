@@ -506,6 +506,15 @@ export default function Home() {
               onClick={() => (pageState.page = "parametrs")}
             />
           )}
+          {pageState.page === "results" && (
+            <Box
+              as={FiChevronLeft}
+              w="30px"
+              p="1"
+              size="xl"
+              onClick={() => (pageState.page = "maps")}
+            />
+          )}
           <Heading fontSize="2xl">Moving App</Heading>
         </Container>
       </Box>
