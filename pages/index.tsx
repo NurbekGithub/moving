@@ -23,9 +23,8 @@ import {
 } from "@chakra-ui/react";
 import Head from "next/head";
 import React, { ChangeEvent, ReactNode, useEffect, useState } from "react";
-import { proxy, useSnapshot } from "valtio";
+import { useSnapshot } from "valtio";
 import { FiArrowRight, FiBox, FiCheck, FiChevronLeft } from "react-icons/fi";
-import { addComputed } from "valtio/utils";
 import {
   Map,
   MapState,
@@ -35,50 +34,13 @@ import {
 } from "react-yandex-maps";
 import { useGeoPosition } from "../hooks/useGeoPosition";
 import { BoxSVG } from "../components/Box";
-
-const state = proxy({
-  smBoxes: 0,
-  mdBoxes: 0,
-  lgBoxes: 0,
-  loaders: false,
-  cleaning: false,
-  furniturers: false,
-  cargoVolumeDirty: false,
-}) as {
-  smBoxes: number;
-  mdBoxes: number;
-  lgBoxes: number;
-  cargoVolumeDirty: boolean;
-  loaders: boolean;
-  cleaning: boolean;
-  furniturers: boolean;
-  cargoVolume: number;
-  totalBoxVolume: number;
-  canProceed: boolean;
-};
-
-addComputed(state, {
-  totalBoxVolume: ({ smBoxes, mdBoxes, lgBoxes }) =>
-    lgBoxes * 1 * 1 * 0.5 +
-    mdBoxes * 0.5 * 0.5 * 0.5 +
-    smBoxes * 0.5 * 0.5 * 0.2,
-  cargoVolume: (snap) =>
-    snap.cargoVolumeDirty ? snap.cargoVolume : snap.totalBoxVolume,
-  canProceed: (snap) =>
-    Boolean(
-      snap.totalBoxVolume ||
-        snap.cargoVolume ||
-        snap.cleaning ||
-        snap.furniturers ||
-        snap.loaders
-    ),
-});
-
-const pageState = proxy({
-  page: "parametrs",
-}) as {
-  page: "parametrs" | "maps" | "results";
-};
+import { AdditionalHelpTypes, store } from "../store";
+import {
+  changeBoxCheckbox,
+  changeBoxCount,
+  setCargoVolumeDirty,
+} from "../store/actions/boxStateActions";
+import { changePage } from "../store/actions/pageStateActions";
 
 type ParamHeaderProps = {
   children: ReactNode;
@@ -149,20 +111,20 @@ function CargoVehicle(props: CargoVehicleType) {
 function handleCheckboxChange({
   target: { name, checked },
 }: ChangeEvent<HTMLInputElement>) {
-  state[name as "cleaning" | "loaders" | "furniturers"] = checked;
+  changeBoxCheckbox(name as keyof AdditionalHelpTypes, checked);
 }
 
 function Parametrs() {
-  const snap = useSnapshot(state);
+  const snap = useSnapshot(store);
   return (
     <Container flex="1" position="relative">
       <Box>
         <ParamHeader>
           <Heading p="1" background="gray.100" size="sm">
             Коробки
-            {snap.totalBoxVolume > 0 && (
+            {snap.boxState.totalBoxVolume > 0 && (
               <Badge ml="1" colorScheme="teal">
-                {snap.totalBoxVolume.toFixed(2)} m<sup>3</sup>
+                {snap.boxState.totalBoxVolume.toFixed(2)} m<sup>3</sup>
               </Badge>
             )}
           </Heading>
@@ -171,15 +133,15 @@ function Parametrs() {
           <Text position="relative">
             <BoxSVG />
             50 x 50 x 20
-            <BoxBadge count={snap.smBoxes} />
+            <BoxBadge count={snap.boxState.smBoxes} />
           </Text>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
             </Text>
             <CountButtons
-              count={snap.smBoxes}
-              handleChange={(num: number) => (state.smBoxes += num)}
+              count={snap.boxState.smBoxes}
+              handleChange={(num: number) => changeBoxCount("mdBoxes", num)}
             />
           </VStack>
         </Flex>
@@ -187,15 +149,15 @@ function Parametrs() {
         <Flex justify="space-between" p="1.5">
           <Text position="relative">
             50 x 50 x 50
-            <BoxBadge count={snap.mdBoxes} />
+            <BoxBadge count={snap.boxState.mdBoxes} />
           </Text>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
             </Text>
             <CountButtons
-              count={snap.mdBoxes}
-              handleChange={(num: number) => (state.mdBoxes += num)}
+              count={snap.boxState.mdBoxes}
+              handleChange={(num: number) => changeBoxCount("mdBoxes", num)}
             />
           </VStack>
         </Flex>
@@ -203,15 +165,15 @@ function Parametrs() {
         <Flex justify="space-between" p="1.5">
           <Text position="relative">
             100 x 100 x 50
-            <BoxBadge count={snap.lgBoxes} />
+            <BoxBadge count={snap.boxState.lgBoxes} />
           </Text>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
             </Text>
             <CountButtons
-              count={snap.lgBoxes}
-              handleChange={(num: number) => (state.lgBoxes += num)}
+              count={snap.boxState.lgBoxes}
+              handleChange={(num: number) => changeBoxCount("lgBoxes", num)}
             />
           </VStack>
         </Flex>
@@ -221,24 +183,24 @@ function Parametrs() {
         <ParamHeader>
           <Heading p="1" background="gray.100" size="sm">
             Объем груза
-            {snap.cargoVolume > 0 && (
+            {snap.boxState.cargoVolume > 0 && (
               <Badge ml="1" colorScheme="teal">
-                {snap.cargoVolume.toFixed(2)} m<sup>3</sup>
+                {snap.boxState.cargoVolume.toFixed(2)} m<sup>3</sup>
               </Badge>
             )}
           </Heading>
         </ParamHeader>
         <Flex justify="space-between" p="1.5">
-          <CargoVehicle volume={snap.cargoVolume} />
+          <CargoVehicle volume={snap.boxState.cargoVolume} />
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, м<sup>3</sup>
             </Text>
             <CountButtons
-              count={snap.cargoVolume}
+              count={snap.boxState.cargoVolume}
               handleChange={(num: number) => {
-                state.cargoVolume += num;
-                state.cargoVolumeDirty = true;
+                changeBoxCount("cargoVolume", num);
+                setCargoVolumeDirty();
               }}
             />
           </VStack>
@@ -258,7 +220,7 @@ function Parametrs() {
             id="loaders"
             colorScheme="teal"
             name="loaders"
-            isChecked={snap.loaders}
+            isChecked={snap.boxState.loaders}
             onChange={handleCheckboxChange}
           />
         </Flex>
@@ -271,7 +233,7 @@ function Parametrs() {
             id="furniturers"
             colorScheme="teal"
             name="furniturers"
-            isChecked={snap.furniturers}
+            isChecked={snap.boxState.furniturers}
             onChange={handleCheckboxChange}
           />
         </Flex>
@@ -284,12 +246,12 @@ function Parametrs() {
             id="cleaning"
             colorScheme="teal"
             name="cleaning"
-            isChecked={snap.cleaning}
+            isChecked={snap.boxState.cleaning}
             onChange={handleCheckboxChange}
           />
         </Flex>
       </Box>
-      {snap.canProceed && (
+      {snap.boxState.canProceed && (
         <Button
           rightIcon={<FiArrowRight />}
           colorScheme="teal"
@@ -298,7 +260,7 @@ function Parametrs() {
           position="absolute"
           bottom="0"
           onClick={() => {
-            pageState.page = "maps";
+            changePage("maps");
           }}
         >
           Далее
@@ -314,7 +276,8 @@ const defaultState: MapState = {
   zoom: 9,
 };
 function Maps() {
-  const isHidden = pageState.page !== "maps";
+  const snap = useSnapshot(store);
+  const isHidden = snap.pageState !== "maps";
   const [position] = useGeoPosition(!isHidden);
   const [state, setState] = useState(defaultState);
 
@@ -342,7 +305,7 @@ function Maps() {
         position="absolute"
         bottom="0"
         onClick={() => {
-          pageState.page = "results";
+          changePage("results");
         }}
       >
         Далее
@@ -488,7 +451,7 @@ function Results() {
 }
 
 export default function Home() {
-  const snap = useSnapshot(pageState);
+  const snap = useSnapshot(store);
   return (
     <>
       <Head>
@@ -497,29 +460,29 @@ export default function Home() {
       </Head>
       <Box as="header" background="teal.400">
         <Container d="flex" alignItems="center">
-          {pageState.page === "maps" && (
+          {snap.pageState === "maps" && (
             <Box
               as={FiChevronLeft}
               w="30px"
               p="1"
               size="xl"
-              onClick={() => (pageState.page = "parametrs")}
+              onClick={() => (snap.pageState = "parametrs")}
             />
           )}
-          {pageState.page === "results" && (
+          {snap.pageState === "results" && (
             <Box
               as={FiChevronLeft}
               w="30px"
               p="1"
               size="xl"
-              onClick={() => (pageState.page = "maps")}
+              onClick={() => (snap.pageState = "maps")}
             />
           )}
           <Heading fontSize="2xl">Moving App</Heading>
         </Container>
       </Box>
-      {snap.page === "parametrs" && <Parametrs />}
-      {snap.page === "results" && <Results />}
+      {snap.pageState === "parametrs" && <Parametrs />}
+      {snap.pageState === "results" && <Results />}
       <Maps />
     </>
   );
