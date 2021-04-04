@@ -24,7 +24,7 @@ import {
 import Head from "next/head";
 import React, { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import { useSnapshot } from "valtio";
-import { FiArrowRight, FiBox, FiCheck, FiChevronLeft } from "react-icons/fi";
+import { FiArrowRight, FiCheck, FiChevronLeft } from "react-icons/fi";
 import {
   Map,
   MapState,
@@ -131,8 +131,7 @@ function Parametrs() {
         </ParamHeader>
         <Flex justify="space-between" p="1.5">
           <Text position="relative">
-            <BoxSVG />
-            50 x 50 x 20
+            <BoxSVG w="100%" p="2" />
             <BoxBadge count={snap.boxState.smBoxes} />
           </Text>
           <VStack alignItems="flex-start">
