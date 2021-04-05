@@ -38,16 +38,19 @@ export const store = proxy({
   pageState: pageEnums;
 };
 
-addComputed(store, {
-  totalBoxVolume: ({ boxState: { smBoxes, mdBoxes, lgBoxes } }) =>
+addComputed(store.boxState, {
+  totalBoxVolume: ({ smBoxes, mdBoxes, lgBoxes }) =>
     lgBoxes * 1 * 1 * 0.5 +
     mdBoxes * 0.5 * 0.5 * 0.5 +
     smBoxes * 0.5 * 0.5 * 0.2,
-  cargoVolume: ({
-    boxState: { cargoVolumeDirty, cargoVolume, totalBoxVolume },
-  }) => (cargoVolumeDirty ? cargoVolume : totalBoxVolume),
+  cargoVolume: ({ cargoVolumeDirty, cargoVolume, totalBoxVolume }) =>
+    cargoVolumeDirty ? cargoVolume : totalBoxVolume,
   canProceed: ({
-    boxState: { totalBoxVolume, cargoVolume, cleaning, furniturers, loaders },
+    totalBoxVolume,
+    cargoVolume,
+    cleaning,
+    furniturers,
+    loaders,
   }) =>
     Boolean(
       totalBoxVolume || cargoVolume || cleaning || furniturers || loaders

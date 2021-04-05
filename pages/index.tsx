@@ -71,13 +71,7 @@ function BoxBadge(props: BoxBadgeProps) {
   const { count } = props;
 
   return count > 0 ? (
-    <Badge
-      color="teal"
-      position="absolute"
-      fontSize="xx-small"
-      top="-4px"
-      left="100%"
-    >
+    <Badge color="teal" fontSize="x-small">
       {count}
     </Badge>
   ) : null;
@@ -116,8 +110,9 @@ function handleCheckboxChange({
 
 function Parametrs() {
   const snap = useSnapshot(store);
+
   return (
-    <Container flex="1" position="relative">
+    <Container flex="1" pb="40px">
       <Box>
         <ParamHeader>
           <Heading p="1" background="gray.100" size="sm">
@@ -129,27 +124,27 @@ function Parametrs() {
             )}
           </Heading>
         </ParamHeader>
-        <Flex justify="space-between" p="1.5">
-          <Text position="relative">
-            <BoxSVG w="100%" p="2" />
+        <Flex justify="space-between" py="4" px="1.5">
+          <BoxSVG chakraProps={{ w: "70%" }} h={30} w={50} l={50} />
+          <sup>
             <BoxBadge count={snap.boxState.smBoxes} />
-          </Text>
+          </sup>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
             </Text>
             <CountButtons
               count={snap.boxState.smBoxes}
-              handleChange={(num: number) => changeBoxCount("mdBoxes", num)}
+              handleChange={(num: number) => changeBoxCount("smBoxes", num)}
             />
           </VStack>
         </Flex>
         <Divider />
-        <Flex justify="space-between" p="1.5">
-          <Text position="relative">
-            50 x 50 x 50
+        <Flex justify="space-between" py="4" px="1.5">
+          <BoxSVG chakraProps={{ w: "70%" }} h={50} w={50} l={50} />
+          <sup>
             <BoxBadge count={snap.boxState.mdBoxes} />
-          </Text>
+          </sup>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
@@ -161,11 +156,11 @@ function Parametrs() {
           </VStack>
         </Flex>
         <Divider />
-        <Flex justify="space-between" p="1.5">
-          <Text position="relative">
-            100 x 100 x 50
+        <Flex justify="space-between" py="4" px="1.5">
+          <BoxSVG chakraProps={{ w: "70%" }} h={50} w={100} l={100} />
+          <sup>
             <BoxBadge count={snap.boxState.lgBoxes} />
-          </Text>
+          </sup>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
@@ -193,7 +188,7 @@ function Parametrs() {
           <CargoVehicle volume={snap.boxState.cargoVolume} />
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
-              Количество, м<sup>3</sup>
+              Объем, м<sup>3</sup>
             </Text>
             <CountButtons
               count={snap.boxState.cargoVolume}
@@ -256,7 +251,8 @@ function Parametrs() {
           colorScheme="teal"
           borderRadius="none"
           isFullWidth
-          position="absolute"
+          zIndex={2}
+          position="fixed"
           bottom="0"
           onClick={() => {
             changePage("maps");

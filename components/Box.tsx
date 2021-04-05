@@ -1,21 +1,26 @@
 import { chakra, ChakraProps } from "@chakra-ui/system";
 import * as React from "react";
 
+const SIDE_WIDTH = 35;
 const VIEWPORT_WIDTH = 450;
 const TOP_MARGIN = 5;
-const LEFT_MARGIN = 30;
-const RIGHT_MARGIN = 80;
+const LEFT_MARGIN = 40;
+const RIGHT_MARGIN = 100;
 const BOTTOM_MARGIN = 50; // для того чтобы поместились стрелки
 const xStart = LEFT_MARGIN;
 const xEnd = VIEWPORT_WIDTH - RIGHT_MARGIN;
 
-const l = 50;
-const w = 50;
-const h = 30;
 const deepness = 70; //расстояние между горизонтальной линий нижней части до самой нижней точки
 
-const xCenter = (l / (l + w)) * (xEnd - xStart) + xStart;
-export function BoxSVG(props: ChakraProps) {
+export type BoxSvgType = {
+  l: number; // length
+  h: number;
+  w: number;
+  chakraProps: ChakraProps;
+};
+export function BoxSVG(props: BoxSvgType) {
+  const { l, w, h, chakraProps } = props;
+  const xCenter = (l / (l + w)) * (xEnd - xStart) + xStart;
   const lengthInPixels = Math.sqrt(
     (xCenter - xStart) * (xCenter - xStart) + deepness * deepness
   );
@@ -28,7 +33,7 @@ export function BoxSVG(props: ChakraProps) {
     <chakra.svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox={`0 0 ${VIEWPORT_WIDTH} ${totalHeight}`}
-      {...props}
+      {...chakraProps}
     >
       <path
         fill="none"
@@ -51,6 +56,30 @@ export function BoxSVG(props: ChakraProps) {
         `}
       />
       <path
+        strokeWidth={12}
+        stroke="#000"
+        fill="#fff"
+        d={`
+          M${xStart} ${botomXLine - heightInPixels}
+          L${xCenter} ${botomXLine + deepness - heightInPixels}
+          l${-SIDE_WIDTH} ${SIDE_WIDTH + 5}
+          L${xStart - SIDE_WIDTH} ${botomXLine - heightInPixels + SIDE_WIDTH}
+          z
+        `}
+      />
+      <path
+        strokeWidth={12}
+        stroke="#000"
+        fill="#fff"
+        d={`
+          M${xEnd} ${botomXLine - heightInPixels}
+          L${xCenter} ${botomXLine + deepness - heightInPixels}
+          l${SIDE_WIDTH} ${SIDE_WIDTH + 5}
+          L${xEnd + SIDE_WIDTH} ${botomXLine - heightInPixels + SIDE_WIDTH}
+          z
+        `}
+      />
+      <path
         id="lArrow"
         fill="none"
         stroke="#000"
@@ -58,11 +87,15 @@ export function BoxSVG(props: ChakraProps) {
         d={`
           M${xStart - 30} ${botomXLine + 20}
           L${xCenter - 30} ${botomXLine + deepness + 20}
-          m -20 -25
-          c 20 25 20 25 -10 35
+          m -1 -1
+          l -20 -25
+          z
+          l -30 8
           M${xStart - 30} ${botomXLine + 20}
-          m 20 -15
-          c -20 15 -20 15 -10 40
+          m 1 1
+          l 25 -10
+          z
+          l 15 24
         `}
       />
       <text fontSize="2em" dx="30" dy="32">
@@ -76,11 +109,15 @@ export function BoxSVG(props: ChakraProps) {
         d={`
           M${xCenter + 30} ${botomXLine + deepness + 20}
           L${xEnd + 30} ${botomXLine + 20}
-          m -20 -15
-          c 20 15 20 15 10 45
+          m -1 1
+          l -20 -15
+          z
+          l -10 25
           M${xCenter + 30} ${botomXLine + deepness + 20}
-          m 20 -25
-          c -20 25 -20 25 5 35
+          m 1 0
+          l 20 -25
+          z
+          l 31 2
         `}
       />
       <text fontSize="2em" dy="32" dx="30">
@@ -91,13 +128,17 @@ export function BoxSVG(props: ChakraProps) {
         stroke="#000"
         strokeWidth={6}
         d={`
-          M${xEnd + 30} ${botomXLine}
-          L${xEnd + 30} ${botomXLine - heightInPixels}
-          m -15 15
-          c 15 -15 15 -15 30 0
-          M${xEnd + 30} ${botomXLine}
-          m 15 -15
-          c -15 15 -15 15 -30 0
+          M${xEnd + 50} ${botomXLine}
+          L${xEnd + 50} ${botomXLine - heightInPixels}
+          m 0 2
+          l -15 15
+          z
+          l 15 15
+          M${xEnd + 50} ${botomXLine}
+          m 0 -2
+          l 15 -15
+          z
+          l -15 -15
         `}
       />
       <path
@@ -106,37 +147,13 @@ export function BoxSVG(props: ChakraProps) {
         stroke="#000"
         strokeWidth={0}
         d={`
-          M${xEnd + 65} ${botomXLine}
-          L${xEnd + 65} ${botomXLine - heightInPixels}
+          M${xEnd + 85} ${botomXLine}
+          L${xEnd + 85} ${botomXLine - heightInPixels}
         `}
       />
       <text fontSize="2em" dx="15">
         <textPath href="#hArrow">{h} см</textPath>
       </text>
-      {/* <path
-        style={{
-          textIndent: 0,
-          textAlign: "start",
-          lineHeight: "normal",
-          textTransform: "none",
-          marker: "none",
-        }}
-        d="
-          M72 12
-          L89.25 29
-          H18
-          A1 1 0 0 0 18 31
-          h71.25
-          L71.344 46.219
-          a1 1 0 1 0 1.312 1.531
-          l20-17
-          a 1 1 0 0 0 0-1.531
-          l-20-17
-          "
-        fontWeight={400}
-        color="#000"
-        strokeWidth={6}
-      /> */}
     </chakra.svg>
   );
 }
