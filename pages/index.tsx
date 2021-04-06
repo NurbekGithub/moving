@@ -71,7 +71,13 @@ function BoxBadge(props: BoxBadgeProps) {
   const { count } = props;
 
   return count > 0 ? (
-    <Badge color="teal" fontSize="x-small">
+    <Badge
+      color="teal"
+      fontSize="x-small"
+      position="absolute"
+      top="2px"
+      right="20px"
+    >
       {count}
     </Badge>
   ) : null;
@@ -124,11 +130,11 @@ function Parametrs() {
             )}
           </Heading>
         </ParamHeader>
-        <Flex justify="space-between" py="4" px="1.5">
-          <BoxSVG chakraProps={{ w: "70%" }} h={30} w={50} l={50} />
-          <sup>
+        <Flex justify="space-between" p="1.5">
+          <Box pos="relative" flex="1">
+            <BoxSVG h={30} w={50} l={50} />
             <BoxBadge count={snap.boxState.smBoxes} />
-          </sup>
+          </Box>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
@@ -140,11 +146,11 @@ function Parametrs() {
           </VStack>
         </Flex>
         <Divider />
-        <Flex justify="space-between" py="4" px="1.5">
-          <BoxSVG chakraProps={{ w: "70%" }} h={50} w={50} l={50} />
-          <sup>
+        <Flex justify="space-between" p="1.5" position="relative">
+          <Box flex="1" pos="relative">
+            <BoxSVG h={50} w={50} l={50} />
             <BoxBadge count={snap.boxState.mdBoxes} />
-          </sup>
+          </Box>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук
@@ -156,11 +162,11 @@ function Parametrs() {
           </VStack>
         </Flex>
         <Divider />
-        <Flex justify="space-between" py="4" px="1.5">
-          <BoxSVG chakraProps={{ w: "70%" }} h={50} w={100} l={100} />
-          <sup>
+        <Flex justify="space-between" p="1.5">
+          <Box flex="1" pos="relative">
+            <BoxSVG h={50} w={100} l={100} />
             <BoxBadge count={snap.boxState.lgBoxes} />
-          </sup>
+          </Box>
           <VStack alignItems="flex-start">
             <Text fontSize="xs" color="gray.600">
               Количество, штук

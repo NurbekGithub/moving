@@ -1,12 +1,11 @@
-import { chakra, ChakraProps } from "@chakra-ui/system";
 import * as React from "react";
 
 const SIDE_WIDTH = 35;
 const VIEWPORT_WIDTH = 450;
-const TOP_MARGIN = 5;
-const LEFT_MARGIN = 40;
-const RIGHT_MARGIN = 100;
-const BOTTOM_MARGIN = 50; // для того чтобы поместились стрелки
+const TOP_MARGIN = 50;
+const LEFT_MARGIN = 100;
+const RIGHT_MARGIN = 150;
+const BOTTOM_MARGIN = 100; // для того чтобы поместились стрелки
 const xStart = LEFT_MARGIN;
 const xEnd = VIEWPORT_WIDTH - RIGHT_MARGIN;
 
@@ -16,10 +15,9 @@ export type BoxSvgType = {
   l: number; // length
   h: number;
   w: number;
-  chakraProps: ChakraProps;
 };
 export function BoxSVG(props: BoxSvgType) {
-  const { l, w, h, chakraProps } = props;
+  const { l, w, h } = props;
   const xCenter = (l / (l + w)) * (xEnd - xStart) + xStart;
   const lengthInPixels = Math.sqrt(
     (xCenter - xStart) * (xCenter - xStart) + deepness * deepness
@@ -30,10 +28,9 @@ export function BoxSVG(props: BoxSvgType) {
     heightInPixels + 2 * deepness + BOTTOM_MARGIN + TOP_MARGIN;
   const botomXLine = totalHeight - BOTTOM_MARGIN - deepness;
   return (
-    <chakra.svg
+    <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox={`0 0 ${VIEWPORT_WIDTH} ${totalHeight}`}
-      {...chakraProps}
     >
       <path
         fill="none"
@@ -44,14 +41,16 @@ export function BoxSVG(props: BoxSvgType) {
           L${xCenter} ${botomXLine + deepness}
           L${xEnd} ${botomXLine}
           M${xCenter} ${botomXLine + deepness}
-          v${-heightInPixels}
+          v${-heightInPixels - deepness / 2.25}
           M${xEnd} ${botomXLine}
           v${-heightInPixels}
           M${xStart} ${botomXLine}
           v${-heightInPixels}
-          L${xCenter} ${botomXLine - heightInPixels + deepness}
+          L${xCenter} ${botomXLine - heightInPixels + deepness / 1.5}
           L${xEnd} ${botomXLine - heightInPixels}
-          L${xStart + xEnd - xCenter} ${botomXLine - heightInPixels - deepness}
+          L${xStart + xEnd - xCenter} ${
+          botomXLine - heightInPixels - deepness / 1.5
+        }
           L${xStart} ${botomXLine - heightInPixels}
         `}
       />
@@ -61,8 +60,8 @@ export function BoxSVG(props: BoxSvgType) {
         fill="#fff"
         d={`
           M${xStart} ${botomXLine - heightInPixels}
-          L${xCenter} ${botomXLine + deepness - heightInPixels}
-          l${-SIDE_WIDTH} ${SIDE_WIDTH + 5}
+          L${xCenter} ${botomXLine + deepness / 1.5 - heightInPixels}
+          l${-SIDE_WIDTH} ${SIDE_WIDTH + 20}
           L${xStart - SIDE_WIDTH} ${botomXLine - heightInPixels + SIDE_WIDTH}
           z
         `}
@@ -73,87 +72,87 @@ export function BoxSVG(props: BoxSvgType) {
         fill="#fff"
         d={`
           M${xEnd} ${botomXLine - heightInPixels}
-          L${xCenter} ${botomXLine + deepness - heightInPixels}
-          l${SIDE_WIDTH} ${SIDE_WIDTH + 5}
+          L${xCenter} ${botomXLine + deepness / 1.5 - heightInPixels}
+          l${SIDE_WIDTH} ${SIDE_WIDTH + 20}
           L${xEnd + SIDE_WIDTH} ${botomXLine - heightInPixels + SIDE_WIDTH}
           z
         `}
       />
       <path
-        id="lArrow"
+        id={`lArrow-${l}-${w}-${h}`}
         fill="none"
         stroke="#000"
         strokeWidth={6}
         d={`
-          M${xStart - 30} ${botomXLine + 20}
-          L${xCenter - 30} ${botomXLine + deepness + 20}
+          M${xStart - 50} ${botomXLine + 30}
+          L${xCenter - 20} ${botomXLine + deepness + 40}
           m -1 -1
           l -20 -25
           z
-          l -30 8
-          M${xStart - 30} ${botomXLine + 20}
+          l -30 -2
+          M${xStart - 50} ${botomXLine + 30}
           m 1 1
-          l 25 -10
+          l 25 0
           z
           l 15 24
         `}
       />
-      <text fontSize="2em" dx="30" dy="32">
-        <textPath href="#lArrow">{l} см</textPath>
+      <path
+        id={`lArrowText-${l}-${w}-${h}`}
+        fill="none"
+        stroke="none"
+        d={`
+          M${xStart - 50} ${botomXLine + 75}
+          L${xCenter - 20} ${botomXLine + deepness + 75}
+        `}
+      />
+      <text fontSize="2em">
+        <textPath href={`#lArrowText-${l}-${w}-${h}`}>{l} см</textPath>
       </text>
       <path
-        id="wArrow"
+        id={`wArrow-${l}-${w}-${h}`}
         fill="none"
         stroke="#000"
         strokeWidth={6}
         d={`
-          M${xCenter + 30} ${botomXLine + deepness + 20}
-          L${xEnd + 30} ${botomXLine + 20}
+          M${xCenter + 20} ${botomXLine + deepness + 40}
+          L${xEnd + 50} ${botomXLine + 20}
           m -1 1
-          l -20 -15
+          l -20 -5
           z
           l -10 25
-          M${xCenter + 30} ${botomXLine + deepness + 20}
+          M${xCenter + 20} ${botomXLine + deepness + 40}
           m 1 0
-          l 20 -25
+          l 18 -26
           z
-          l 31 2
+          l 28 -6
         `}
       />
       <text fontSize="2em" dy="32" dx="30">
-        <textPath href="#wArrow">{w} см</textPath>
+        <textPath href={`#wArrow-${l}-${w}-${h}`}>{w} см</textPath>
       </text>
       <path
+        id={`hArrow-${l}-${w}-${h}`}
         fill="none"
         stroke="#000"
         strokeWidth={6}
         d={`
-          M${xEnd + 50} ${botomXLine}
-          L${xEnd + 50} ${botomXLine - heightInPixels}
+          M${xEnd + 55} ${botomXLine + 10}
+          v -120
           m 0 2
           l -15 15
           z
           l 15 15
-          M${xEnd + 50} ${botomXLine}
+          M${xEnd + 55} ${botomXLine + 10}
           m 0 -2
           l 15 -15
           z
           l -15 -15
         `}
       />
-      <path
-        id="hArrow"
-        fill="none"
-        stroke="#000"
-        strokeWidth={0}
-        d={`
-          M${xEnd + 85} ${botomXLine}
-          L${xEnd + 85} ${botomXLine - heightInPixels}
-        `}
-      />
-      <text fontSize="2em" dx="15">
-        <textPath href="#hArrow">{h} см</textPath>
+      <text fontSize="2em" dy="42" dx="22">
+        <textPath href={`#hArrow-${l}-${w}-${h}`}>{h} см</textPath>
       </text>
-    </chakra.svg>
+    </svg>
   );
 }
