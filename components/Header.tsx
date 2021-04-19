@@ -36,7 +36,7 @@ export function Header() {
             <Button
               variant="ghost"
               borderRadius="none"
-              onClick={() => signIn()}
+              onClick={() => signIn("google")}
             >
               Login
             </Button>
