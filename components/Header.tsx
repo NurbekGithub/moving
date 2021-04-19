@@ -6,7 +6,6 @@ import { useSnapshot } from "valtio";
 import { store } from "../store";
 import { changePage } from "../store/actions/pageStateActions";
 
-// tt:triger vercel
 export function Header() {
   const snap = useSnapshot(store);
   const [session] = useSession();
