@@ -1,7 +1,6 @@
 import {
   Accordion,
   AccordionButton,
-  AccordionIcon,
   AccordionItem,
   AccordionPanel,
   Badge,
@@ -16,23 +15,13 @@ import {
   List,
   ListIcon,
   ListItem,
-  Stat,
-  StatNumber,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
-import React, { ChangeEvent, ReactNode, useEffect, useState } from "react";
+import React, { ChangeEvent, ReactNode } from "react";
 import { useSnapshot } from "valtio";
-import { FiArrowRight, FiCheck, FiChevronLeft } from "react-icons/fi";
-import {
-  Map,
-  MapState,
-  SearchControl,
-  YMaps,
-  ZoomControl,
-} from "react-yandex-maps";
-import { useGeoPosition } from "../hooks/useGeoPosition";
+import { FiArrowRight, FiCheck } from "react-icons/fi";
 import { BoxSVG } from "../components/Box";
 import { AdditionalHelpTypes, store } from "../store";
 import {
@@ -41,6 +30,9 @@ import {
   setCargoVolumeDirty,
 } from "../store/actions/boxStateActions";
 import { changePage } from "../store/actions/pageStateActions";
+import { Maps } from "../components/Maps";
+import { Header } from "../components/Header";
+import { MainLayout } from "../components/MainLayout";
 
 type ParamHeaderProps = {
   children: ReactNode;
@@ -271,50 +263,6 @@ function Parametrs() {
   );
 }
 
-const ASTANA_GEO_POINT = [51.128207, 71.430411];
-const defaultState: MapState = {
-  center: ASTANA_GEO_POINT,
-  zoom: 9,
-};
-function Maps() {
-  const snap = useSnapshot(store);
-  const isHidden = snap.pageState !== "maps";
-  const [position] = useGeoPosition(!isHidden);
-  const [state, setState] = useState(defaultState);
-
-  useEffect(() => {
-    if (position) {
-      setState({
-        center: [position.coords.latitude, position.coords.longitude],
-        zoom: 15,
-      });
-    }
-  }, [position]);
-  return (
-    <Box flex="1" d="flex" w="100%" hidden={isHidden} position="relative">
-      <YMaps query={{ apikey: "922688b0-ec1e-4fe7-92f7-deea83d01c3d" }}>
-        <Map width="100%" style={{ flex: 1 }} state={state}>
-          <SearchControl />
-          <ZoomControl />
-        </Map>
-      </YMaps>
-      <Button
-        rightIcon={<FiArrowRight />}
-        colorScheme="teal"
-        borderRadius="none"
-        isFullWidth
-        position="absolute"
-        bottom="0"
-        onClick={() => {
-          changePage("results");
-        }}
-      >
-        Далее
-      </Button>
-    </Box>
-  );
-}
-
 const results = [];
 
 function Results() {
@@ -454,37 +402,14 @@ function Results() {
 export default function Home() {
   const snap = useSnapshot(store);
   return (
-    <>
+    <MainLayout>
       <Head>
         <title>Moving App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box as="header" background="teal.400">
-        <Container d="flex" alignItems="center">
-          {snap.pageState === "maps" && (
-            <Box
-              as={FiChevronLeft}
-              w="30px"
-              p="1"
-              size="xl"
-              onClick={() => (snap.pageState = "parametrs")}
-            />
-          )}
-          {snap.pageState === "results" && (
-            <Box
-              as={FiChevronLeft}
-              w="30px"
-              p="1"
-              size="xl"
-              onClick={() => (snap.pageState = "maps")}
-            />
-          )}
-          <Heading fontSize="2xl">Moving App</Heading>
-        </Container>
-      </Box>
       {snap.pageState === "parametrs" && <Parametrs />}
       {snap.pageState === "results" && <Results />}
       <Maps />
-    </>
+    </MainLayout>
   );
 }
