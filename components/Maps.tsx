@@ -1,6 +1,7 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Input } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
 import { FiArrowRight } from "react-icons/fi";
+import { useQuery } from "react-query";
 import {
   MapState,
   SearchControl,
@@ -10,6 +11,7 @@ import {
   // RoutePanel,
 } from "react-yandex-maps";
 import { useSnapshot } from "valtio";
+import { getMapData, getStreetData } from "../api/yandex/map";
 import { useGeoPosition } from "../hooks/useGeoPosition";
 import { store } from "../store";
 import { changePage } from "../store/actions/pageStateActions";
@@ -24,6 +26,7 @@ export function Maps() {
   const isHidden = snap.pageState !== "maps";
   const [position] = useGeoPosition(!isHidden);
   const [state, setState] = useState(defaultState);
+  const [value, setValue] = useState("");
 
   useEffect(() => {
     if (position) {
@@ -33,14 +36,41 @@ export function Maps() {
       });
     }
   }, [position]);
+
+  const handleChange = (event) => setValue(event.target.value);
+
+  const { data, isLoading, error } = useQuery(
+    ["maDataStreet"],
+    () => getMapData(value),
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
+  const {
+    data: streetData,
+    isLoading: streetLoading,
+    error: streetError,
+  } = useQuery(["streetData"], () => getStreetData());
+
+  console.log(streetLoading ? [] : streetData);
+
+  const mapData = isLoading ? [] : data;
+
   return (
     <Box flex="1" d="flex" w="100%" hidden={isHidden} position="relative">
       <YMaps query={{ apikey: "922688b0-ec1e-4fe7-92f7-deea83d01c3d" }}>
         <Map width="100%" style={{ flex: 1 }} state={state}>
-          <SearchControl />
           <ZoomControl />
         </Map>
       </YMaps>
+
+      <Input
+        position="absolute"
+        placeholder="City"
+        background="#fff"
+        width="500px"
+        onChange={handleChange}
+      />
       <Button
         rightIcon={<FiArrowRight />}
         colorScheme="teal"
